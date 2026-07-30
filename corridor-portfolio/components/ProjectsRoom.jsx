@@ -5,7 +5,19 @@ import { useFrame } from '@react-three/fiber';
 import { Html } from '@react-three/drei';
 import { getRoomTransform } from '@/lib/roomGeometry';
 
-const TECH = ['React', 'Three.js', 'GSAP', 'Next.js'];
+const CONTENT = {
+  About: ['Designer', 'Developer', 'Minimal systems', 'Calm interfaces'],
+  Skills: ['React', 'Three.js', 'Next.js', 'GSAP'],
+  Projects: ['Portfolio', 'WebGL', 'Motion', 'Architecture'],
+  Contact: ['Email', 'LinkedIn', 'Resume', 'Availability'],
+};
+
+function seededRandom(seed) {
+  let t = seed + 0x6d2b79f5;
+  t = Math.imul(t ^ (t >>> 15), t | 1);
+  t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+  return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+}
 
 export default function ProjectsRoom({ door }) {
   const { position, rotationY } = getRoomTransform(door, 3.0);
@@ -13,15 +25,17 @@ export default function ProjectsRoom({ door }) {
   const particlesRef = useRef();
 
   const particlePositions = useMemo(() => {
-    const count = 60;
+    const count = 36;
     const arr = new Float32Array(count * 3);
     for (let i = 0; i < count; i++) {
-      arr[i * 3] = (Math.random() - 0.5) * 4;
-      arr[i * 3 + 1] = Math.random() * 3;
-      arr[i * 3 + 2] = (Math.random() - 0.5) * 4;
+      arr[i * 3] = (seededRandom(i * 3 + 1) - 0.5) * 4;
+      arr[i * 3 + 1] = seededRandom(i * 3 + 2) * 3;
+      arr[i * 3 + 2] = (seededRandom(i * 3 + 3) - 0.5) * 4;
     }
     return arr;
   }, []);
+
+  const labels = CONTENT[door.label] ?? CONTENT.Projects;
 
   useFrame((state, delta) => {
     if (projectRef.current) {
@@ -45,62 +59,71 @@ export default function ProjectsRoom({ door }) {
       {/* Floor */}
       <mesh rotation={[-Math.PI / 2, 0, 0]}>
         <planeGeometry args={[5, 5]} />
-        <meshStandardMaterial color="#1c1c1c" />
+        <meshStandardMaterial color="#ECE8DF" roughness={0.72} />
       </mesh>
 
-      {/* Accent light near the floating project */}
-      <pointLight position={[0, 2.2, 0]} color="#7ab8ff" intensity={8} distance={5} />
+      <mesh position={[0, 1.6, -2.48]}>
+        <boxGeometry args={[5, 3.2, 0.05]} />
+        <meshStandardMaterial color="#F4F3EF" roughness={0.95} />
+      </mesh>
+
+      <mesh position={[0, 3.18, 0]}>
+        <boxGeometry args={[5, 0.05, 5]} />
+        <meshStandardMaterial color="#FAFAF8" roughness={0.88} />
+      </mesh>
+
+      <pointLight position={[0, 2.45, 0]} color="#fff8e8" intensity={1.4} distance={6} />
 
       {/* Desk */}
-      <mesh position={[0, 0.5, 1.2]}>
+      <mesh position={[0, 0.5, 1.2]} castShadow receiveShadow>
         <boxGeometry args={[1.4, 0.06, 0.7]} />
-        <meshStandardMaterial color="#2a2a2a" />
+        <meshStandardMaterial color="#D9C6A5" roughness={0.6} />
       </mesh>
-      <mesh position={[-0.55, 0.25, 1.4]}>
+      <mesh position={[-0.55, 0.25, 1.4]} castShadow>
         <boxGeometry args={[0.06, 0.5, 0.06]} />
-        <meshStandardMaterial color="#2a2a2a" />
+        <meshStandardMaterial color="#B58A62" roughness={0.65} />
       </mesh>
-      <mesh position={[0.55, 0.25, 1.4]}>
+      <mesh position={[0.55, 0.25, 1.4]} castShadow>
         <boxGeometry args={[0.06, 0.5, 0.06]} />
-        <meshStandardMaterial color="#2a2a2a" />
+        <meshStandardMaterial color="#B58A62" roughness={0.65} />
       </mesh>
 
       {/* Laptop */}
       <group position={[0, 0.53, 1.2]}>
         <mesh position={[0, 0.01, 0]}>
           <boxGeometry args={[0.5, 0.02, 0.35]} />
-          <meshStandardMaterial color="#3a3a3a" />
+          <meshStandardMaterial color="#d7d8d5" metalness={0.28} roughness={0.36} />
         </mesh>
         <mesh position={[0, 0.2, -0.16]} rotation={[-0.25, 0, 0]}>
           <boxGeometry args={[0.5, 0.32, 0.02]} />
-          <meshStandardMaterial color="#3a3a3a" emissive="#7ab8ff" emissiveIntensity={0.4} />
+          <meshStandardMaterial color="#f6f4ee" emissive="#FFF8E8" emissiveIntensity={0.15} />
         </mesh>
       </group>
 
       {/* Floating project */}
       <mesh ref={projectRef} position={[0, 1.6, 0]}>
         <icosahedronGeometry args={[0.35, 0]} />
-        <meshStandardMaterial color="#7ab8ff" emissive="#7ab8ff" emissiveIntensity={0.5} wireframe />
+        <meshStandardMaterial color="#B58A62" emissive="#FFF8E8" emissiveIntensity={0.18} wireframe />
       </mesh>
 
       <Html position={[0, 2.15, 0]} center distanceFactor={6}>
         <div
           style={{
-            fontFamily: 'monospace',
-            fontSize: '14px',
-            letterSpacing: '2px',
-            textTransform: 'uppercase',
-            color: '#fff',
-            whiteSpace: 'nowrap',
-          }}
-        >
-          Project Alpha
+              fontFamily: 'monospace',
+              fontSize: '14px',
+              letterSpacing: '2px',
+              textTransform: 'uppercase',
+              color: '#5f4c3d',
+              whiteSpace: 'nowrap',
+            }}
+          >
+          {door.label}
         </div>
       </Html>
 
       {/* Tech stack badges, arranged in a ring */}
-      {TECH.map((t, i) => {
-        const angle = (i / TECH.length) * Math.PI * 2;
+      {labels.map((t, i) => {
+        const angle = (i / labels.length) * Math.PI * 2;
         const r = 1.1;
         const x = Math.sin(angle) * r;
         const z = Math.cos(angle) * r;
@@ -110,9 +133,9 @@ export default function ProjectsRoom({ door }) {
               style={{
                 fontFamily: 'monospace',
                 fontSize: '11px',
-                color: 'rgba(255,255,255,0.7)',
-                background: 'rgba(255,255,255,0.06)',
-                border: '1px solid rgba(255,255,255,0.15)',
+                color: '#6b5848',
+                background: 'rgba(250,250,248,0.78)',
+                border: '1px solid rgba(181,138,98,0.2)',
                 borderRadius: '4px',
                 padding: '3px 8px',
                 whiteSpace: 'nowrap',
@@ -134,7 +157,7 @@ export default function ProjectsRoom({ door }) {
             itemSize={3}
           />
         </bufferGeometry>
-        <pointsMaterial size={0.02} color="#7ab8ff" transparent opacity={0.6} />
+        <pointsMaterial size={0.018} color="#B58A62" transparent opacity={0.22} />
       </points>
     </group>
   );
