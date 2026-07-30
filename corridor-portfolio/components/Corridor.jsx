@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
+import { useLoader } from '@react-three/fiber';
 import * as THREE from 'three';
 
 // ── Dimensions ──
@@ -9,7 +10,7 @@ import * as THREE from 'three';
 const W = 6;       // corridor width
 const H = 5;       // corridor height
 const L = 120;     // corridor length
-const LED_N = 14;  // number of LED strip segments
+const LED_N = 12;  // number of recessed LED segments
 const LED_STEP = L / LED_N;
 
 function seededRandom(seed) {
@@ -33,114 +34,62 @@ function useGeometries() {
     ceiling:    new THREE.PlaneGeometry(W, L),
     ledStrip:   new THREE.PlaneGeometry(0.14, LED_STEP * 0.7),
     baseboard:  new THREE.PlaneGeometry(L, 0.15),
+    cornerBand: new THREE.PlaneGeometry(L, 0.7),
   }), []);
 }
 
-// ── Procedural Textures ────────────────────────────────────────
-// Canvas-generated textures avoid network requests and disk I/O.
-// They're created once (via useMemo) and remain in GPU memory
-// for the component's lifetime.
-
-function useFloorTexture() {
-  return useMemo(() => {
-    const size = 512;
-    const canvas = document.createElement('canvas');
-    canvas.width = canvas.height = size;
-    const ctx = canvas.getContext('2d');
-
-    // Base coat: light natural oak.
-    ctx.fillStyle = '#D9C6A5';
-    ctx.fillRect(0, 0, size, size);
-
-    const plankWid = 44;
-
-    // Long straight planks, scaled to run down the corridor.
-    for (let x = 0; x < size; x += plankWid) {
-      const shade = 0.94 + seededRandom(x + 17) * 0.12;
-      const r = Math.floor(217 * shade);
-      const g = Math.floor(198 * shade);
-      const b = Math.floor(165 * shade);
-
-      ctx.fillStyle = `rgb(${r},${g},${b})`;
-      ctx.fillRect(x, 0, plankWid - 1, size);
-
-      ctx.strokeStyle = '#B6956E';
-      ctx.globalAlpha = 0.45;
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(x + plankWid - 1, 0);
-      ctx.lineTo(x + plankWid - 1, size);
-      ctx.stroke();
-      ctx.globalAlpha = 1;
-    }
-
-    ctx.strokeStyle = 'rgba(110,82,50,0.12)';
-    ctx.lineWidth = 0.5;
-    for (let i = 0; i < 180; i++) {
-      const sx = seededRandom(i * 4 + 1) * size;
-      const sy = seededRandom(i * 4 + 2) * size;
-      ctx.beginPath();
-      ctx.moveTo(sx, sy);
-      ctx.quadraticCurveTo(
-        sx + seededRandom(i * 4 + 3) * 3 - 1.5, sy + 24,
-        sx + seededRandom(i * 4 + 4) * 3 - 1.5, sy + 48
-      );
-      ctx.stroke();
-    }
-
-    const tex = new THREE.CanvasTexture(canvas);
-    tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
-    tex.repeat.set(W / 1.5, L / 8);
-    // anisotropy 4 is plenty for a floor seen from ~1.6m height;
-    // 8 would read 8× the texels per pixel for negligible gain.
-    tex.anisotropy = 4;
-    return tex;
-  }, []);
-}
-
-function useWallTexture() {
+function useCeilingTexture() {
   return useMemo(() => {
     const size = 256;
     const canvas = document.createElement('canvas');
     canvas.width = canvas.height = size;
     const ctx = canvas.getContext('2d');
 
-    ctx.fillStyle = '#F4F3EF';
+    ctx.fillStyle = '#FAFAF8';
     ctx.fillRect(0, 0, size, size);
 
-    // Tiny plaster imperfections.
     const img = ctx.getImageData(0, 0, size, size);
     for (let i = 0; i < img.data.length; i += 4) {
-      const noise = (seededRandom(i + 101) - 0.5) * 8;
+      const noise = (seededRandom(i + 311) - 0.5) * 4;
       img.data[i]     += noise; // R
       img.data[i + 1] += noise; // G
       img.data[i + 2] += noise; // B
     }
     ctx.putImageData(img, 0, 0);
 
-    ctx.strokeStyle = 'rgba(0,0,0,0.025)';
-    ctx.lineWidth = 1;
-    for (let x = 0; x < size; x += 64) {
-      ctx.beginPath();
-      ctx.moveTo(x, 0);
-      ctx.lineTo(x, size);
-      ctx.stroke();
-    }
-
-    for (let y = 0; y < size; y += 6) {
-      const streak = (seededRandom(y + 211) - 0.5) * 4;
-      ctx.fillStyle = `rgba(${210 + streak},${208 + streak},${202 + streak},0.08)`;
-      ctx.fillRect(0, y, size, 1);
-    }
-
     const tex = new THREE.CanvasTexture(canvas);
     tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
-    tex.repeat.set(4, 18);
-    // Walls are viewed nearly head-on in the corridor, so
-    // anisotropic filtering buys nothing — keep it 0.
-    tex.anisotropy = 0;
+    tex.repeat.set(2, 20);
+    tex.colorSpace = THREE.SRGBColorSpace;
     return tex;
   }, []);
+}
+
+function useSurfaceTextures() {
+  const [wallSource, floorSource] = useLoader(THREE.TextureLoader, [
+    '/assets/Background/wall.png',
+    '/assets/Background/floor.png',
+  ]);
+
+  return useMemo(() => {
+    const wall = wallSource.clone();
+    wall.wrapS = wall.wrapT = THREE.RepeatWrapping;
+    wall.repeat.set(6, 2);
+    wall.colorSpace = THREE.SRGBColorSpace;
+    wall.anisotropy = 4;
+    wall.needsUpdate = true;
+
+    const floor = floorSource.clone();
+    floor.wrapS = floor.wrapT = THREE.RepeatWrapping;
+    floor.repeat.set(8, 20);
+    floor.rotation = Math.PI / 2;
+    floor.center.set(0.5, 0.5);
+    floor.colorSpace = THREE.SRGBColorSpace;
+    floor.anisotropy = 8;
+    floor.needsUpdate = true;
+
+    return { wall, floor };
+  }, [wallSource, floorSource]);
 }
 
 // ── Shared Materials ───────────────────────────────────────────
@@ -148,22 +97,33 @@ function useWallTexture() {
 // reference the same material, Three.js can sort and batch them
 // without a shader re-compile between draw calls.
 function useMaterials(floorTex, wallTex) {
+  const ceilingTex = useCeilingTexture();
+
   return useMemo(() => ({
-    floor:     new THREE.MeshStandardMaterial({ map: floorTex, roughness: 0.55, metalness: 0.0 }),
-    wall:      new THREE.MeshStandardMaterial({ map: wallTex, roughness: 0.92, metalness: 0.0 }),
-    ceiling:   new THREE.MeshStandardMaterial({ color: '#FAFAF8', roughness: 0.8, metalness: 0.0 }),
-    // toneMapped: false lets the emissive value exceed 1.0 in
-    // HDR space, so the strip appears intensely bright without
-    // needing a matching point light. The camera's tone-mapping
-    // pass naturally creates a soft glow around bright pixels.
+    floor:     new THREE.MeshStandardMaterial({ map: floorTex, color: '#ECE8DF', roughness: 0.65, metalness: 0.0 }),
+    wall:      new THREE.MeshStandardMaterial({ map: wallTex, color: '#F4F3EF', roughness: 0.95, metalness: 0.0 }),
+    ceiling:   new THREE.MeshStandardMaterial({ map: ceilingTex, color: '#FAFAF8', roughness: 0.9, metalness: 0.0 }),
     led:       new THREE.MeshStandardMaterial({
       color: '#FFF8E8',
       emissive: '#FFF8E8',
-      emissiveIntensity: 1.15,
+      emissiveIntensity: 1.6,
       toneMapped: false,
     }),
-    baseboard: new THREE.MeshStandardMaterial({ color: '#E8E2D8', roughness: 0.74, metalness: 0.0 }),
-  }), [floorTex, wallTex]);
+    ledGlow:   new THREE.MeshBasicMaterial({
+      color: '#FFF8E8',
+      transparent: true,
+      opacity: 0.2,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+    }),
+    baseboard: new THREE.MeshStandardMaterial({ color: '#F5F4F0', roughness: 0.78, metalness: 0.0 }),
+    cornerAo:  new THREE.MeshBasicMaterial({
+      color: '#7b7469',
+      transparent: true,
+      opacity: 0.09,
+      depthWrite: false,
+    }),
+  }), [ceilingTex, floorTex, wallTex]);
 }
 
 // ── Corridor Component ────────────────────────────────────────
@@ -172,9 +132,8 @@ function useMaterials(floorTex, wallTex) {
 // emissive, and all scene lighting lives in Lights.jsx.
 export default function Corridor() {
   const geos = useGeometries();
-  const floorTex = useFloorTexture();
-  const wallTex = useWallTexture();
-  const mats = useMaterials(floorTex, wallTex);
+  const textures = useSurfaceTextures();
+  const mats = useMaterials(textures.floor, textures.wall);
 
   // LED Z positions — computed once.
   // The corridor extends from -L/2 to +L/2 relative to the group.
@@ -190,6 +149,7 @@ export default function Corridor() {
         rotation={[-Math.PI / 2, 0, 0]}
         geometry={geos.floor}
         material={mats.floor}
+        receiveShadow
       />
 
       {/* ── Ceiling — matte white ── */}
@@ -198,6 +158,7 @@ export default function Corridor() {
         position={[0, H, 0]}
         geometry={geos.ceiling}
         material={mats.ceiling}
+        receiveShadow
       />
 
       {/* ── Left wall — off-white textured plaster ── */}
@@ -206,6 +167,7 @@ export default function Corridor() {
         position={[-W / 2, H / 2, 0]}
         geometry={geos.wall}
         material={mats.wall}
+        receiveShadow
       />
 
       {/* ── Right wall — same material, shared geometry ── */}
@@ -214,6 +176,7 @@ export default function Corridor() {
         position={[W / 2, H / 2, 0]}
         geometry={geos.wall}
         material={mats.wall}
+        receiveShadow
       />
 
       {/* ── Baseboards (left & right) — pale architectural trim ──
@@ -222,13 +185,29 @@ export default function Corridor() {
            with a shared geometry and material.                */}
       <mesh
         position={[-W / 2 + 0.01, 0.075, 0]}
+        rotation={[0, Math.PI / 2, 0]}
         geometry={geos.baseboard}
         material={mats.baseboard}
       />
       <mesh
         position={[W / 2 - 0.01, 0.075, 0]}
+        rotation={[0, -Math.PI / 2, 0]}
         geometry={geos.baseboard}
         material={mats.baseboard}
+      />
+
+      {/* Soft ambient occlusion strips at the floor-wall corners. */}
+      <mesh
+        position={[-W / 2 + 0.018, 0.32, 0]}
+        rotation={[0, Math.PI / 2, 0]}
+        geometry={geos.cornerBand}
+        material={mats.cornerAo}
+      />
+      <mesh
+        position={[W / 2 - 0.018, 0.32, 0]}
+        rotation={[0, -Math.PI / 2, 0]}
+        geometry={geos.cornerBand}
+        material={mats.cornerAo}
       />
 
       {/* ── Recessed LED strips — emissive only ──
@@ -245,6 +224,17 @@ export default function Corridor() {
           rotation={[Math.PI / 2, 0, 0]}
           geometry={geos.ledStrip}
           material={mats.led}
+        />
+      ))}
+
+      {ledZ.map((z, i) => (
+        <mesh
+          key={`led-glow-${i}`}
+          position={[0, H - 0.02, z]}
+          rotation={[Math.PI / 2, 0, 0]}
+          scale={[2.9, 1.35, 1]}
+          geometry={geos.ledStrip}
+          material={mats.ledGlow}
         />
       ))}
     </group>
