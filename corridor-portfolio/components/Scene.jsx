@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
+import * as THREE from 'three';
 import Lenis from 'lenis';
 import Corridor from './Corridor';
 import Doors from './Doors';
@@ -46,8 +47,23 @@ export default function Scene() {
   return (
     <>
       <Canvas
-        camera={{ position: [0, 1.6, 8], fov: 70 }}
+        shadows={{ type: THREE.PCFShadowMap }}
+        dpr={[1, 1.5]}
+        camera={{ position: [0, 1.65, 8], fov: 46 }}
+        gl={{
+          antialias: true,
+          powerPreference: 'default',
+          toneMapping: THREE.ACESFilmicToneMapping,
+          toneMappingExposure: 1.08,
+        }}
         style={{ position: 'fixed', inset: 0 }}
+        onCreated={({ gl }) => {
+          gl.domElement.addEventListener('webglcontextlost', (e) => {
+            e.preventDefault();
+            console.error('WEBGL CONTEXT LOST', e);
+            console.trace('context lost trace');
+          });
+        }}
       >
         {/* Bright plaster-toned background and light haze for depth. */}
         <color attach="background" args={['#FAFAF8']} />
@@ -57,7 +73,7 @@ export default function Scene() {
         <Doors />
         <CameraRig />
         <CameraController fadeRef={fadeRef} lenisRef={lenisRef} />
-        {activeDoor?.label === 'Projects' && <ProjectsRoom door={activeDoor} />}
+        {activeDoor && <ProjectsRoom door={activeDoor} />}
       </Canvas>
 
       <div
