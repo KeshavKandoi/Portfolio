@@ -49,8 +49,9 @@ export default function Scene() {
         camera={{ position: [0, 1.6, 8], fov: 70 }}
         style={{ position: 'fixed', inset: 0 }}
       >
-        <color attach="background" args={['#141414']} />
-        <fog attach="fog" args={['#141414', 6, 30]} />
+        {/* Bright plaster-toned background and light haze for depth. */}
+        <color attach="background" args={['#FAFAF8']} />
+        <fog attach="fog" args={['#F4F3EF', 18, 85]} />
         <Lights />
         <Corridor />
         <Doors />
@@ -64,7 +65,7 @@ export default function Scene() {
         style={{
           position: 'fixed',
           inset: 0,
-          background: '#000',
+          background: '#FAFAF8',
           opacity: 0,
           pointerEvents: 'none',
           zIndex: 10,
@@ -83,9 +84,9 @@ export default function Scene() {
             fontSize: '13px',
             letterSpacing: '2px',
             textTransform: 'uppercase',
-            color: '#fff',
-            background: 'rgba(255,255,255,0.08)',
-            border: '1px solid rgba(255,255,255,0.25)',
+            color: '#5f4c3d',
+            background: 'rgba(250,250,248,0.72)',
+            border: '1px solid rgba(168,130,94,0.28)',
             borderRadius: '4px',
             padding: '8px 16px',
             cursor: 'pointer',
