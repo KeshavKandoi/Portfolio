@@ -35,7 +35,7 @@ export default function Door({ index, position, rotationY, label }) {
           y: -Math.PI / 2,
           duration: 1.0,
           ease: 'power2.out',
-          delay: 0.9, // door opens after the camera has walked up to it
+          delay: 0.9,
         });
       }
 
@@ -88,13 +88,11 @@ export default function Door({ index, position, rotationY, label }) {
       }}
       onClick={handleClick}
     >
-      {/* Frame */}
       <mesh position={[0, FRAME_H / 2, 0]}>
         <boxGeometry args={[FRAME_W, FRAME_H, FRAME_D]} />
         <meshStandardMaterial color="#3a3a3a" />
       </mesh>
 
-      {/* Door — hinged on its left edge so it swings, doesn't teleport */}
       <group ref={hingeRef} position={[-DOOR_W / 2, 0, FRAME_D / 2 + 0.02]}>
         <mesh position={[DOOR_W / 2, DOOR_H / 2, 0]}>
           <boxGeometry args={[DOOR_W, DOOR_H, 0.08]} />
@@ -106,7 +104,6 @@ export default function Door({ index, position, rotationY, label }) {
           />
         </mesh>
 
-        {/* Handle moves with the door */}
         <mesh position={[DOOR_W - 0.15, DOOR_H / 2, 0.06]}>
           <sphereGeometry args={[0.05, 12, 12]} />
           <meshStandardMaterial color="#c9c9c9" metalness={0.6} roughness={0.3} />
