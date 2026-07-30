@@ -19,8 +19,8 @@ export default function IntroDoor({ onEnter }) {
       },
     });
 
-    tl.to(leftRef.current, { rotateY: -105, transformOrigin: 'right center' }, 0);
-    tl.to(rightRef.current, { rotateY: 105, transformOrigin: 'left center' }, 0);
+    tl.to(leftRef.current, { rotateY: -105, transformOrigin: 'left center' }, 0);
+    tl.to(rightRef.current, { rotateY: 105, transformOrigin: 'right center' }, 0);
   }
 
   return (
