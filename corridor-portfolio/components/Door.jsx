@@ -61,7 +61,8 @@ export default function Door({ index, position, rotationY, label }) {
     glowRef.current += (targetGlow - glowRef.current) * 0.12;
     if (doorMatRef.current) doorMatRef.current.emissiveIntensity = glowRef.current * 0.8;
 
-    setShowLabel(hovered && canHover);
+    const nextShowLabel = hovered && canHover;
+    setShowLabel((prev) => (prev === nextShowLabel ? prev : nextShowLabel));
   });
 
   function handleClick(e) {
