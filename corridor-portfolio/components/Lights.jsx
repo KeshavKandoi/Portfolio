@@ -35,16 +35,6 @@ export default function Lights() {
         position={[0, 7, 8]}
         color="#fff9f2"
         intensity={0.7}
-        castShadow
-        shadow-mapSize-width={512}
-        shadow-mapSize-height={512}
-        shadow-camera-left={-5}
-        shadow-camera-right={5}
-        shadow-camera-top={8}
-        shadow-camera-bottom={-8}
-        shadow-camera-near={0.5}
-        shadow-camera-far={32}
-        shadow-bias={-0.00012}
       />
 
       {/* Far-end fill — keeps the corridor high-key and airy. */}
