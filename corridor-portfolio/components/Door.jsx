@@ -90,7 +90,7 @@ export default function Door({ index, position, rotationY, label }) {
     >
       <mesh position={[0, FRAME_H / 2, 0]}>
         <boxGeometry args={[FRAME_W, FRAME_H, FRAME_D]} />
-        <meshStandardMaterial color="#3a3a3a" />
+        <meshStandardMaterial color="#E8E2D8" roughness={0.78} />
       </mesh>
 
       <group ref={hingeRef} position={[-DOOR_W / 2, 0, FRAME_D / 2 + 0.02]}>
@@ -98,15 +98,16 @@ export default function Door({ index, position, rotationY, label }) {
           <boxGeometry args={[DOOR_W, DOOR_H, 0.08]} />
           <meshStandardMaterial
             ref={doorMatRef}
-            color="#4a4a4a"
-            emissive="#7ab8ff"
+            color="#A8825E"
+            emissive="#FFF8E8"
             emissiveIntensity={0}
+            roughness={0.62}
           />
         </mesh>
 
         <mesh position={[DOOR_W - 0.15, DOOR_H / 2, 0.06]}>
           <sphereGeometry args={[0.05, 12, 12]} />
-          <meshStandardMaterial color="#c9c9c9" metalness={0.6} roughness={0.3} />
+          <meshStandardMaterial color="#E8E2D8" metalness={0.15} roughness={0.35} />
         </mesh>
       </group>
 
@@ -118,8 +119,9 @@ export default function Door({ index, position, rotationY, label }) {
               fontSize: '13px',
               letterSpacing: '2px',
               textTransform: 'uppercase',
-              color: '#fff',
-              background: 'rgba(0,0,0,0.6)',
+              color: '#5f4c3d',
+              background: 'rgba(250,250,248,0.86)',
+              border: '1px solid rgba(168,130,94,0.22)',
               padding: '4px 10px',
               borderRadius: '4px',
               whiteSpace: 'nowrap',
