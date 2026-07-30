@@ -7,7 +7,7 @@ import * as THREE from 'three';
 // ── Dimensions ──
 // Keeping these as module-level constants avoids recreating them
 // on every render — they're hoisted and never re-allocated.
-const W = 6;       // corridor width
+const W = 8;       // corridor width
 const H = 5;       // corridor height
 const L = 120;     // corridor length
 const LED_N = 12;  // number of recessed LED segments
@@ -74,17 +74,14 @@ function useSurfaceTextures() {
   return useMemo(() => {
     const wall = wallSource.clone();
     wall.wrapS = wall.wrapT = THREE.RepeatWrapping;
-    wall.repeat.set(6, 2);
+    wall.repeat.set(2, 1);
     wall.colorSpace = THREE.SRGBColorSpace;
     wall.anisotropy = 4;
     wall.needsUpdate = true;
 
     const floor = floorSource.clone();
     floor.wrapS = floor.wrapT = THREE.RepeatWrapping;
-    floor.repeat.set(8, 20);
-    floor.rotation = Math.PI / 2;
-    floor.center.set(0.5, 0.5);
-    floor.colorSpace = THREE.SRGBColorSpace;
+    floor.repeat.set(2, 10);    floor.colorSpace = THREE.SRGBColorSpace;
     floor.anisotropy = 8;
     floor.needsUpdate = true;
 
@@ -100,7 +97,7 @@ function useMaterials(floorTex, wallTex) {
   const ceilingTex = useCeilingTexture();
 
   return useMemo(() => ({
-    floor:     new THREE.MeshStandardMaterial({ map: floorTex, color: '#ECE8DF', roughness: 0.65, metalness: 0.0 }),
+    floor:     new THREE.MeshStandardMaterial({ map: floorTex, color: '#ffffff', roughness: 0.65, metalness: 0.0 }),
     wall:      new THREE.MeshStandardMaterial({ map: wallTex, color: '#F4F3EF', roughness: 0.95, metalness: 0.0 }),
     ceiling:   new THREE.MeshStandardMaterial({ map: ceilingTex, color: '#FAFAF8', roughness: 0.9, metalness: 0.0 }),
     led:       new THREE.MeshStandardMaterial({
