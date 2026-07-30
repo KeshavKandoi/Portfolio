@@ -24,18 +24,34 @@ export default function Lights() {
     <>
       {/* Bright diffuse ambient — fills the entire corridor uniformly.
           No per-pixel cost, no distance falloff. */}
-      <ambientLight color="#fff8ee" intensity={0.72} />
+      <ambientLight color="#fff9f2" intensity={0.9} />
 
       {/* Hemisphere light — gives subtle color variation between
           the ceiling lights and the oak floor, simulating
           bounced light without multiple point lights. */}
       <hemisphereLight color="#ffffff" groundColor="#D9C6A5" intensity={0.9} />
 
+      <directionalLight
+        position={[0, 7, 8]}
+        color="#fff9f2"
+        intensity={0.7}
+        castShadow
+        shadow-mapSize-width={512}
+        shadow-mapSize-height={512}
+        shadow-camera-left={-5}
+        shadow-camera-right={5}
+        shadow-camera-top={8}
+        shadow-camera-bottom={-8}
+        shadow-camera-near={0.5}
+        shadow-camera-far={32}
+        shadow-bias={-0.00012}
+      />
+
       {/* Far-end fill — keeps the corridor high-key and airy. */}
       <pointLight
         position={[0, 3, -60]}
         color="#fff8e8"
-        intensity={1.1}
+        intensity={0.85}
         distance={65}
         decay={1.2}
       />
@@ -44,7 +60,7 @@ export default function Lights() {
       <pointLight
         position={[0, 3, 5]}
         color="#fff8e8"
-        intensity={0.65}
+        intensity={0.45}
         distance={22}
         decay={1.8}
       />
