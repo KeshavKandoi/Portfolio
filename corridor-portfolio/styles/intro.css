@@ -266,3 +266,80 @@
   font-size: 12px;
   color: var(--outline);
 }
+
+/* Door — SVG panels, GSAP-driven open animation */
+.door {
+  position: relative;
+  margin-top: 30px;
+  width: 220px;
+  height: 300px;
+  perspective: 1500px;
+  cursor: pointer;
+}
+.door.door-opening {
+  cursor: default;
+}
+
+.leftDoor,
+.rightDoor {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 50%;
+  height: 100%;
+  transform-style: preserve-3d;
+  filter: drop-shadow(0px 10px 20px var(--shadow));
+}
+
+.rightDoor {
+  left: 50%;
+}
+
+/* Force evenodd fill-rule on the door artwork so overlapping
+   line-art strokes don't visually merge into a solid block */
+.leftDoor,
+.rightDoor {
+  fill-rule: evenodd;
+}
+
+/* ===== Door v2 — frame + two SVG panels, appended so these rules
+   win the cascade over any earlier .door/.leftDoor/.rightDoor blocks ===== */
+.door {
+  position: relative;
+  width: 320px;
+  aspect-ratio: 1 / 2;
+  height: auto;
+  margin-top: 30px;
+  display: block;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  perspective: 1200px;
+}
+.door.door-opening {
+  cursor: default;
+}
+
+.door img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.door-frame {
+  z-index: 3;
+  pointer-events: none;
+  filter: drop-shadow(0px 10px 20px var(--shadow));
+}
+
+.leftDoor {
+  z-index: 1;
+  transform-style: preserve-3d;
+}
+
+.rightDoor {
+  z-index: 2;
+  transform-style: preserve-3d;
+}
