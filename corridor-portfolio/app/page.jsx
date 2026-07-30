@@ -13,5 +13,10 @@ export default function Home() {
     return <IntroScreen onEnter={() => setEntered(true)} />;
   }
 
-  return <Scene />;
+  return (
+    <>
+      <Scene />
+      <div style={{ height: '600vh' }} />
+    </>
+  );
 }
