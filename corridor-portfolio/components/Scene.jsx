@@ -22,12 +22,13 @@ export default function Scene() {
   useEffect(() => {
     const lenis = new Lenis({ duration: 1.2, smoothWheel: true });
     lenisRef.current = lenis;
+    let rafId;
 
     function raf(time) {
       lenis.raf(time);
-      requestAnimationFrame(raf);
+      rafId = requestAnimationFrame(raf);
     }
-    requestAnimationFrame(raf);
+    rafId = requestAnimationFrame(raf);
 
     lenis.on('scroll', ({ progress }) => {
       scrollState.progress = progress;
@@ -39,6 +40,7 @@ export default function Scene() {
     });
 
     return () => {
+      cancelAnimationFrame(rafId);
       lenis.destroy();
       unsub();
     };
@@ -47,23 +49,15 @@ export default function Scene() {
   return (
     <>
       <Canvas
-        shadows={{ type: THREE.PCFShadowMap }}
-        dpr={[1, 1.5]}
+        dpr={1}
         camera={{ position: [0, 1.65, 8], fov: 46 }}
         gl={{
-          antialias: true,
-          powerPreference: 'default',
+          antialias: false,
+          powerPreference: 'high-performance',
           toneMapping: THREE.ACESFilmicToneMapping,
           toneMappingExposure: 1.08,
         }}
         style={{ position: 'fixed', inset: 0 }}
-        onCreated={({ gl }) => {
-          gl.domElement.addEventListener('webglcontextlost', (e) => {
-            e.preventDefault();
-            console.error('WEBGL CONTEXT LOST', e);
-            console.trace('context lost trace');
-          });
-        }}
       >
         {/* Bright plaster-toned background and light haze for depth. */}
         <color attach="background" args={['#FAFAF8']} />
