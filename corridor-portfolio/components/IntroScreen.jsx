@@ -1,6 +1,7 @@
 'use client';
 
 import '@/styles/intro.css';
+import IntroDoor from './IntroDoor';
 
 export default function IntroScreen({ onEnter }) {
   return (
@@ -21,20 +22,7 @@ export default function IntroScreen({ onEnter }) {
         <div className="sign">PORTFOLIO</div>
         <div className="window" />
 
-        <button className="door" onClick={onEnter} aria-label="Enter portfolio">
-          <div className="door-panel door-left">
-            <span className="badge badge-html">HTML5</span>
-            <span className="badge badge-js">JS</span>
-            <span className="badge badge-ts">TS</span>
-          </div>
-          <div className="door-panel door-right">
-            <span className="badge badge-react">React</span>
-            <span className="badge badge-node">node.js</span>
-            <span className="badge badge-css">CSS3</span>
-          </div>
-          <div className="door-handle door-handle-left" />
-          <div className="door-handle door-handle-right" />
-        </button>
+        <IntroDoor onEnter={onEnter} />
 
         <div className="planter">
           <div className="plant" />
