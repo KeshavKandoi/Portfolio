@@ -90,25 +90,36 @@ export default function Door({ index, position, rotationY, label }) {
     >
       <mesh position={[0, FRAME_H / 2, 0]}>
         <boxGeometry args={[FRAME_W, FRAME_H, FRAME_D]} />
-        <meshStandardMaterial color="#E8E2D8" roughness={0.78} />
+        <meshStandardMaterial color="#F5F4F0" roughness={0.78} metalness={0} />
       </mesh>
 
       <group ref={hingeRef} position={[-DOOR_W / 2, 0, FRAME_D / 2 + 0.02]}>
-        <mesh position={[DOOR_W / 2, DOOR_H / 2, 0]}>
+        <mesh position={[DOOR_W / 2, DOOR_H / 2, 0]} castShadow receiveShadow>
           <boxGeometry args={[DOOR_W, DOOR_H, 0.08]} />
           <meshStandardMaterial
             ref={doorMatRef}
-            color="#A8825E"
+            color="#B58A62"
             emissive="#FFF8E8"
             emissiveIntensity={0}
-            roughness={0.62}
+            roughness={0.68}
+            metalness={0}
           />
         </mesh>
 
-        <mesh position={[DOOR_W - 0.15, DOOR_H / 2, 0.06]}>
-          <sphereGeometry args={[0.05, 12, 12]} />
-          <meshStandardMaterial color="#E8E2D8" metalness={0.15} roughness={0.35} />
-        </mesh>
+        <group position={[DOOR_W - 0.18, DOOR_H / 2, 0.08]}>
+          <mesh castShadow>
+            <cylinderGeometry args={[0.018, 0.018, 0.42, 18]} />
+            <meshStandardMaterial color="#c8c9c7" metalness={0.65} roughness={0.28} />
+          </mesh>
+          <mesh position={[0, 0.16, -0.035]} rotation={[Math.PI / 2, 0, 0]} castShadow>
+            <cylinderGeometry args={[0.014, 0.014, 0.08, 14]} />
+            <meshStandardMaterial color="#c8c9c7" metalness={0.65} roughness={0.28} />
+          </mesh>
+          <mesh position={[0, -0.16, -0.035]} rotation={[Math.PI / 2, 0, 0]} castShadow>
+            <cylinderGeometry args={[0.014, 0.014, 0.08, 14]} />
+            <meshStandardMaterial color="#c8c9c7" metalness={0.65} roughness={0.28} />
+          </mesh>
+        </group>
       </group>
 
       {showLabel && (
